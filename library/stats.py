@@ -121,6 +121,8 @@ def display_themed_value(theme_data, value, min_size=0, unit=''):
 
 
 def display_themed_percent_value(theme_data, value):
+    if value is None or (isinstance(value, float) and math.isnan(value)):
+        value = 0
     display_themed_value(
         theme_data=theme_data,
         value=int(value),
@@ -130,6 +132,8 @@ def display_themed_percent_value(theme_data, value):
 
 
 def display_themed_temperature_value(theme_data, value):
+    if value is None or (isinstance(value, float) and math.isnan(value)):
+        value = 0
     display_themed_value(
         theme_data=theme_data,
         value=int(value),
@@ -141,6 +145,9 @@ def display_themed_temperature_value(theme_data, value):
 def display_themed_progress_bar(theme_data, value):
     if not theme_data.get("SHOW", False):
         return
+
+    if value is None or (isinstance(value, float) and math.isnan(value)):
+        value = 0
 
     display.lcd.DisplayProgressBar(
         x=theme_data.get("X", 0),
@@ -160,6 +167,9 @@ def display_themed_progress_bar(theme_data, value):
 def display_themed_radial_bar(theme_data, value, min_size=0, unit='', custom_text=None):
     if not theme_data.get("SHOW", False):
         return
+
+    if value is None or (isinstance(value, float) and math.isnan(value)):
+        value = 0
 
     if theme_data.get("SHOW_TEXT", False):
         if custom_text:
@@ -200,6 +210,8 @@ def display_themed_radial_bar(theme_data, value, min_size=0, unit='', custom_tex
 
 
 def display_themed_percent_radial_bar(theme_data, value):
+    if value is None or (isinstance(value, float) and math.isnan(value)):
+        value = 0
     display_themed_radial_bar(
         theme_data=theme_data,
         value=int(value),
@@ -209,6 +221,8 @@ def display_themed_percent_radial_bar(theme_data, value):
 
 
 def display_themed_temperature_radial_bar(theme_data, value):
+    if value is None or (isinstance(value, float) and math.isnan(value)):
+        value = 0
     display_themed_radial_bar(
         theme_data=theme_data,
         value=int(value),
@@ -380,219 +394,281 @@ class Gpu:
     last_values_gpu_fps = []
     last_values_gpu_fan_speed = []
     last_values_gpu_frequency = []
+    
+    last_values_multi = {}
 
     @classmethod
     def stats(cls):
-        load, memory_percentage, memory_used_mb, total_memory_mb, temperature = sensors.Gpu.stats()
-        fps = sensors.Gpu.fps()
-        fan_percent = sensors.Gpu.fan_percent()
-        freq_ghz = sensors.Gpu.frequency() / 1000
+        # Original Single GPU Logic (Backward Compatibility)
+        if 'GPU' in config.THEME_DATA['STATS']:
+            load, memory_percentage, memory_used_mb, total_memory_mb, temperature = sensors.Gpu.stats()
+            fps = sensors.Gpu.fps()
+            fan_percent = sensors.Gpu.fan_percent()
+            freq_ghz = sensors.Gpu.frequency() / 1000
 
-        theme_gpu_data = config.THEME_DATA['STATS']['GPU']
+            theme_gpu_data = config.THEME_DATA['STATS']['GPU']
 
-        save_last_value(load, cls.last_values_gpu_percentage,
-                        theme_gpu_data['PERCENTAGE']['LINE_GRAPH'].get("HISTORY_SIZE", DEFAULT_HISTORY_SIZE))
-        save_last_value(memory_percentage, cls.last_values_gpu_mem_percentage,
-                        theme_gpu_data['MEMORY_PERCENT']['LINE_GRAPH'].get("HISTORY_SIZE", DEFAULT_HISTORY_SIZE))
-        save_last_value(temperature, cls.last_values_gpu_temperature,
-                        theme_gpu_data['TEMPERATURE']['LINE_GRAPH'].get("HISTORY_SIZE", DEFAULT_HISTORY_SIZE))
-        save_last_value(fps, cls.last_values_gpu_fps,
-                        theme_gpu_data['FPS']['LINE_GRAPH'].get("HISTORY_SIZE", DEFAULT_HISTORY_SIZE))
-        save_last_value(fan_percent, cls.last_values_gpu_fan_speed,
-                        theme_gpu_data['FAN_SPEED']['LINE_GRAPH'].get("HISTORY_SIZE", DEFAULT_HISTORY_SIZE))
-        save_last_value(freq_ghz, cls.last_values_gpu_frequency,
-                        theme_gpu_data['FREQUENCY']['LINE_GRAPH'].get("HISTORY_SIZE", DEFAULT_HISTORY_SIZE))
+            save_last_value(load, cls.last_values_gpu_percentage,
+                            theme_gpu_data['PERCENTAGE']['LINE_GRAPH'].get("HISTORY_SIZE", DEFAULT_HISTORY_SIZE))
+            save_last_value(memory_percentage, cls.last_values_gpu_mem_percentage,
+                            theme_gpu_data['MEMORY_PERCENT']['LINE_GRAPH'].get("HISTORY_SIZE", DEFAULT_HISTORY_SIZE))
+            save_last_value(temperature, cls.last_values_gpu_temperature,
+                            theme_gpu_data['TEMPERATURE']['LINE_GRAPH'].get("HISTORY_SIZE", DEFAULT_HISTORY_SIZE))
+            save_last_value(fps, cls.last_values_gpu_fps,
+                            theme_gpu_data['FPS']['LINE_GRAPH'].get("HISTORY_SIZE", DEFAULT_HISTORY_SIZE))
+            save_last_value(fan_percent, cls.last_values_gpu_fan_speed,
+                            theme_gpu_data['FAN_SPEED']['LINE_GRAPH'].get("HISTORY_SIZE", DEFAULT_HISTORY_SIZE))
+            save_last_value(freq_ghz, cls.last_values_gpu_frequency,
+                            theme_gpu_data['FREQUENCY']['LINE_GRAPH'].get("HISTORY_SIZE", DEFAULT_HISTORY_SIZE))
 
-        ################################ for backward compatibility only
-        gpu_mem_graph_data = theme_gpu_data['MEMORY']['GRAPH']
-        gpu_mem_radial_data = theme_gpu_data['MEMORY']['RADIAL']
-        if math.isnan(memory_percentage):
-            memory_percentage = 0
-            if gpu_mem_graph_data['SHOW'] or gpu_mem_radial_data['SHOW']:
-                logger.warning("Your GPU memory relative usage (%) is not supported yet")
-                gpu_mem_graph_data['SHOW'] = False
-                gpu_mem_radial_data['SHOW'] = False
+            ################################ for backward compatibility only
+            gpu_mem_graph_data = theme_gpu_data['MEMORY']['GRAPH']
+            gpu_mem_radial_data = theme_gpu_data['MEMORY']['RADIAL']
+            if math.isnan(memory_percentage):
+                memory_percentage = 0
+                if gpu_mem_graph_data['SHOW'] or gpu_mem_radial_data['SHOW']:
+                    logger.warning("Your GPU memory relative usage (%) is not supported yet")
+                    gpu_mem_graph_data['SHOW'] = False
+                    gpu_mem_radial_data['SHOW'] = False
 
-        gpu_mem_text_data = theme_gpu_data['MEMORY']['TEXT']
-        if math.isnan(memory_used_mb):
-            memory_used_mb = 0
-            if gpu_mem_text_data['SHOW']:
-                logger.warning("Your GPU memory absolute usage (M) is not supported yet")
-                gpu_mem_text_data['SHOW'] = False
+            gpu_mem_text_data = theme_gpu_data['MEMORY']['TEXT']
+            if math.isnan(memory_used_mb):
+                memory_used_mb = 0
+                if gpu_mem_text_data['SHOW']:
+                    logger.warning("Your GPU memory absolute usage (M) is not supported yet")
+                    gpu_mem_text_data['SHOW'] = False
 
-        display_themed_progress_bar(gpu_mem_graph_data, memory_percentage)
-        display_themed_percent_radial_bar(gpu_mem_radial_data, memory_percentage)
-        display_themed_value(
-            theme_data=gpu_mem_text_data,
-            value=int(memory_used_mb),
-            min_size=5,
-            unit=" M"
-        )
-        ################################ end of backward compatibility only
+            display_themed_progress_bar(gpu_mem_graph_data, memory_percentage)
+            display_themed_percent_radial_bar(gpu_mem_radial_data, memory_percentage)
+            display_themed_value(
+                theme_data=gpu_mem_text_data,
+                value=int(memory_used_mb),
+                min_size=5,
+                unit=" M"
+            )
+            ################################ end of backward compatibility only
 
-        # GPU usage (%)
-        gpu_percent_graph_data = theme_gpu_data['PERCENTAGE']['GRAPH']
-        gpu_percent_radial_data = theme_gpu_data['PERCENTAGE']['RADIAL']
-        gpu_percent_text_data = theme_gpu_data['PERCENTAGE']['TEXT']
-        gpu_percent_line_graph_data = theme_gpu_data['PERCENTAGE']['LINE_GRAPH']
+            # GPU usage (%)
+            gpu_percent_graph_data = theme_gpu_data['PERCENTAGE']['GRAPH']
+            gpu_percent_radial_data = theme_gpu_data['PERCENTAGE']['RADIAL']
+            gpu_percent_text_data = theme_gpu_data['PERCENTAGE']['TEXT']
+            gpu_percent_line_graph_data = theme_gpu_data['PERCENTAGE']['LINE_GRAPH']
 
-        if math.isnan(load):
-            load = 0
-            if gpu_percent_graph_data['SHOW'] or gpu_percent_text_data['SHOW'] or gpu_percent_radial_data['SHOW'] or \
-                    gpu_percent_line_graph_data['SHOW']:
-                logger.warning("Your GPU load is not supported yet")
-                gpu_percent_graph_data['SHOW'] = False
-                gpu_percent_text_data['SHOW'] = False
-                gpu_percent_radial_data['SHOW'] = False
-                gpu_percent_line_graph_data['SHOW'] = False
+            if math.isnan(load):
+                load = 0
+                if gpu_percent_graph_data['SHOW'] or gpu_percent_text_data['SHOW'] or gpu_percent_radial_data['SHOW'] or \
+                        gpu_percent_line_graph_data['SHOW']:
+                    logger.warning("Your GPU load is not supported yet")
+                    gpu_percent_graph_data['SHOW'] = False
+                    gpu_percent_text_data['SHOW'] = False
+                    gpu_percent_radial_data['SHOW'] = False
+                    gpu_percent_line_graph_data['SHOW'] = False
 
-        display_themed_progress_bar(gpu_percent_graph_data, load)
-        display_themed_percent_radial_bar(gpu_percent_radial_data, load)
-        display_themed_percent_value(gpu_percent_text_data, load)
-        display_themed_line_graph(gpu_percent_line_graph_data, cls.last_values_gpu_percentage)
+            display_themed_progress_bar(gpu_percent_graph_data, load)
+            display_themed_percent_radial_bar(gpu_percent_radial_data, load)
+            display_themed_percent_value(gpu_percent_text_data, load)
+            display_themed_line_graph(gpu_percent_line_graph_data, cls.last_values_gpu_percentage)
 
-        # GPU mem. usage (%)
-        gpu_mem_percent_graph_data = theme_gpu_data['MEMORY_PERCENT']['GRAPH']
-        gpu_mem_percent_radial_data = theme_gpu_data['MEMORY_PERCENT']['RADIAL']
-        gpu_mem_percent_text_data = theme_gpu_data['MEMORY_PERCENT']['TEXT']
-        gpu_mem_percent_line_graph_data = theme_gpu_data['MEMORY_PERCENT']['LINE_GRAPH']
+            # GPU mem. usage (%)
+            gpu_mem_percent_graph_data = theme_gpu_data['MEMORY_PERCENT']['GRAPH']
+            gpu_mem_percent_radial_data = theme_gpu_data['MEMORY_PERCENT']['RADIAL']
+            gpu_mem_percent_text_data = theme_gpu_data['MEMORY_PERCENT']['TEXT']
+            gpu_mem_percent_line_graph_data = theme_gpu_data['MEMORY_PERCENT']['LINE_GRAPH']
 
-        if math.isnan(memory_percentage):
-            memory_percentage = 0
-            if gpu_mem_percent_graph_data['SHOW'] or gpu_mem_percent_radial_data['SHOW'] or gpu_mem_percent_text_data[
-                'SHOW'] or gpu_mem_percent_line_graph_data['SHOW']:
-                logger.warning("Your GPU memory relative usage (%) is not supported yet")
-                gpu_mem_percent_graph_data['SHOW'] = False
-                gpu_mem_percent_radial_data['SHOW'] = False
-                gpu_mem_percent_text_data['SHOW'] = False
+            if math.isnan(memory_percentage):
+                memory_percentage = 0
+                if gpu_mem_percent_graph_data['SHOW'] or gpu_mem_percent_radial_data['SHOW'] or gpu_mem_percent_text_data[
+                    'SHOW'] or gpu_mem_percent_line_graph_data['SHOW']:
+                    logger.warning("Your GPU memory relative usage (%) is not supported yet")
+                    gpu_mem_percent_graph_data['SHOW'] = False
+                    gpu_mem_percent_radial_data['SHOW'] = False
+                    gpu_mem_percent_text_data['SHOW'] = False
 
-        display_themed_progress_bar(gpu_mem_percent_graph_data, memory_percentage)
-        display_themed_percent_radial_bar(gpu_mem_percent_radial_data, memory_percentage)
-        display_themed_percent_value(gpu_mem_percent_text_data, memory_percentage)
-        display_themed_line_graph(gpu_mem_percent_line_graph_data, cls.last_values_gpu_mem_percentage)
+            display_themed_progress_bar(gpu_mem_percent_graph_data, memory_percentage)
+            display_themed_percent_radial_bar(gpu_mem_percent_radial_data, memory_percentage)
+            display_themed_percent_value(gpu_mem_percent_text_data, memory_percentage)
+            display_themed_line_graph(gpu_mem_percent_line_graph_data, cls.last_values_gpu_mem_percentage)
 
-        # GPU mem. absolute usage (M)
-        gpu_mem_used_text_data = theme_gpu_data['MEMORY_USED']['TEXT']
-        if math.isnan(memory_used_mb):
-            memory_used_mb = 0
-            if gpu_mem_used_text_data['SHOW']:
-                logger.warning("Your GPU memory absolute usage (M) is not supported yet")
-                gpu_mem_used_text_data['SHOW'] = False
+            # GPU mem. absolute usage (M)
+            gpu_mem_used_text_data = theme_gpu_data['MEMORY_USED']['TEXT']
+            if math.isnan(memory_used_mb):
+                memory_used_mb = 0
+                if gpu_mem_used_text_data['SHOW']:
+                    logger.warning("Your GPU memory absolute usage (M) is not supported yet")
+                    gpu_mem_used_text_data['SHOW'] = False
 
-        display_themed_value(
-            theme_data=gpu_mem_used_text_data,
-            value=int(memory_used_mb),
-            min_size=5,
-            unit=" M"
-        )
+            display_themed_value(
+                theme_data=gpu_mem_used_text_data,
+                value=int(memory_used_mb),
+                min_size=5,
+                unit=" M"
+            )
 
-        # GPU mem. total memory (M)
-        gpu_mem_total_text_data = theme_gpu_data['MEMORY_TOTAL']['TEXT']
-        if math.isnan(total_memory_mb):
-            total_memory_mb = 0
-            if gpu_mem_total_text_data['SHOW']:
-                logger.warning("Your GPU total memory capacity (M) is not supported yet")
-                gpu_mem_total_text_data['SHOW'] = False
+            # GPU mem. total memory (M)
+            gpu_mem_total_text_data = theme_gpu_data['MEMORY_TOTAL']['TEXT']
+            if math.isnan(total_memory_mb):
+                total_memory_mb = 0
+                if gpu_mem_total_text_data['SHOW']:
+                    logger.warning("Your GPU total memory capacity (M) is not supported yet")
+                    gpu_mem_total_text_data['SHOW'] = False
 
-        display_themed_value(
-            theme_data=gpu_mem_total_text_data,
-            value=int(total_memory_mb),
-            min_size=5,  # Adjust min_size as necessary for your display
-            unit=" M"  # Assuming the unit is in Megabytes
-        )
+            display_themed_value(
+                theme_data=gpu_mem_total_text_data,
+                value=int(total_memory_mb),
+                min_size=5,  # Adjust min_size as necessary for your display
+                unit=" M"  # Assuming the unit is in Megabytes
+            )
 
-        # GPU temperature (°C)
-        gpu_temp_text_data = theme_gpu_data['TEMPERATURE']['TEXT']
-        gpu_temp_radial_data = theme_gpu_data['TEMPERATURE']['RADIAL']
-        gpu_temp_graph_data = theme_gpu_data['TEMPERATURE']['GRAPH']
-        gpu_temp_line_graph_data = theme_gpu_data['TEMPERATURE']['LINE_GRAPH']
+            # GPU temperature (°C)
+            gpu_temp_text_data = theme_gpu_data['TEMPERATURE']['TEXT']
+            gpu_temp_radial_data = theme_gpu_data['TEMPERATURE']['RADIAL']
+            gpu_temp_graph_data = theme_gpu_data['TEMPERATURE']['GRAPH']
+            gpu_temp_line_graph_data = theme_gpu_data['TEMPERATURE']['LINE_GRAPH']
 
-        if math.isnan(temperature):
-            temperature = 0
-            if gpu_temp_text_data['SHOW'] or gpu_temp_radial_data['SHOW'] or gpu_temp_graph_data[
-                'SHOW'] or gpu_temp_line_graph_data['SHOW']:
-                logger.warning("Your GPU temperature is not supported yet")
-                gpu_temp_text_data['SHOW'] = False
-                gpu_temp_radial_data['SHOW'] = False
-                gpu_temp_graph_data['SHOW'] = False
-                gpu_temp_line_graph_data['SHOW'] = False
+            if math.isnan(temperature):
+                temperature = 0
+                if gpu_temp_text_data['SHOW'] or gpu_temp_radial_data['SHOW'] or gpu_temp_graph_data[
+                    'SHOW'] or gpu_temp_line_graph_data['SHOW']:
+                    logger.warning("Your GPU temperature is not supported yet")
+                    gpu_temp_text_data['SHOW'] = False
+                    gpu_temp_radial_data['SHOW'] = False
+                    gpu_temp_graph_data['SHOW'] = False
+                    gpu_temp_line_graph_data['SHOW'] = False
 
-        display_themed_temperature_value(gpu_temp_text_data, temperature)
-        display_themed_progress_bar(gpu_temp_graph_data, temperature)
-        display_themed_temperature_radial_bar(gpu_temp_radial_data, temperature)
-        display_themed_line_graph(gpu_temp_line_graph_data, cls.last_values_gpu_temperature)
+            display_themed_temperature_value(gpu_temp_text_data, temperature)
+            display_themed_progress_bar(gpu_temp_graph_data, temperature)
+            display_themed_temperature_radial_bar(gpu_temp_radial_data, temperature)
+            display_themed_line_graph(gpu_temp_line_graph_data, cls.last_values_gpu_temperature)
 
-        # GPU FPS
-        gpu_fps_text_data = theme_gpu_data['FPS']['TEXT']
-        gpu_fps_radial_data = theme_gpu_data['FPS']['RADIAL']
-        gpu_fps_graph_data = theme_gpu_data['FPS']['GRAPH']
-        gpu_fps_line_graph_data = theme_gpu_data['FPS']['LINE_GRAPH']
+            # GPU FPS
+            gpu_fps_text_data = theme_gpu_data['FPS']['TEXT']
+            gpu_fps_radial_data = theme_gpu_data['FPS']['RADIAL']
+            gpu_fps_graph_data = theme_gpu_data['FPS']['GRAPH']
+            gpu_fps_line_graph_data = theme_gpu_data['FPS']['LINE_GRAPH']
 
-        if fps < 0:
-            fps = 0
-            if gpu_fps_text_data['SHOW'] or gpu_fps_radial_data['SHOW'] or gpu_fps_graph_data[
-                'SHOW'] or gpu_fps_line_graph_data['SHOW']:
-                logger.warning("Your GPU FPS is not supported yet")
-                gpu_fps_text_data['SHOW'] = False
-                gpu_fps_radial_data['SHOW'] = False
-                gpu_fps_graph_data['SHOW'] = False
-                gpu_fps_line_graph_data['SHOW'] = False
+            if fps < 0:
+                fps = 0
+                if gpu_fps_text_data['SHOW'] or gpu_fps_radial_data['SHOW'] or gpu_fps_graph_data[
+                    'SHOW'] or gpu_fps_line_graph_data['SHOW']:
+                    logger.warning("Your GPU FPS is not supported yet")
+                    gpu_fps_text_data['SHOW'] = False
+                    gpu_fps_radial_data['SHOW'] = False
+                    gpu_fps_graph_data['SHOW'] = False
+                    gpu_fps_line_graph_data['SHOW'] = False
 
-        display_themed_progress_bar(gpu_fps_graph_data, fps)
-        display_themed_value(
-            theme_data=gpu_fps_text_data,
-            value=int(fps),
-            min_size=4,
-            unit=" FPS"
-        )
-        display_themed_radial_bar(
-            theme_data=gpu_fps_radial_data,
-            value=int(fps),
-            min_size=4,
-            unit=" FPS"
-        )
-        display_themed_line_graph(gpu_fps_line_graph_data, cls.last_values_gpu_fps)
+            display_themed_progress_bar(gpu_fps_graph_data, fps)
+            display_themed_value(
+                theme_data=gpu_fps_text_data,
+                value=int(fps),
+                min_size=4,
+                unit=" FPS"
+            )
+            display_themed_radial_bar(
+                theme_data=gpu_fps_radial_data,
+                value=int(fps),
+                min_size=4,
+                unit=" FPS"
+            )
+            display_themed_line_graph(gpu_fps_line_graph_data, cls.last_values_gpu_fps)
 
-        # GPU Fan Speed (%)
-        gpu_fan_text_data = theme_gpu_data['FAN_SPEED']['TEXT']
-        gpu_fan_radial_data = theme_gpu_data['FAN_SPEED']['RADIAL']
-        gpu_fan_graph_data = theme_gpu_data['FAN_SPEED']['GRAPH']
-        gpu_fan_line_graph_data = theme_gpu_data['FAN_SPEED']['LINE_GRAPH']
+            # GPU Fan Speed (%)
+            gpu_fan_text_data = theme_gpu_data['FAN_SPEED']['TEXT']
+            gpu_fan_radial_data = theme_gpu_data['FAN_SPEED']['RADIAL']
+            gpu_fan_graph_data = theme_gpu_data['FAN_SPEED']['GRAPH']
+            gpu_fan_line_graph_data = theme_gpu_data['FAN_SPEED']['LINE_GRAPH']
 
-        if math.isnan(fan_percent):
-            fan_percent = 0
-            if gpu_fan_text_data['SHOW'] or gpu_fan_radial_data['SHOW'] or gpu_fan_graph_data[
-                'SHOW'] or gpu_fan_line_graph_data['SHOW']:
-                logger.warning("Your GPU Fan Speed is not supported yet")
-                gpu_fan_text_data['SHOW'] = False
-                gpu_fan_radial_data['SHOW'] = False
-                gpu_fan_graph_data['SHOW'] = False
-                gpu_fan_line_graph_data['SHOW'] = False
+            if math.isnan(fan_percent):
+                fan_percent = 0
+                if gpu_fan_text_data['SHOW'] or gpu_fan_radial_data['SHOW'] or gpu_fan_graph_data[
+                    'SHOW'] or gpu_fan_line_graph_data['SHOW']:
+                    logger.warning("Your GPU Fan Speed is not supported yet")
+                    gpu_fan_text_data['SHOW'] = False
+                    gpu_fan_radial_data['SHOW'] = False
+                    gpu_fan_graph_data['SHOW'] = False
+                    gpu_fan_line_graph_data['SHOW'] = False
 
-        display_themed_percent_value(gpu_fan_text_data, fan_percent)
-        display_themed_progress_bar(gpu_fan_graph_data, fan_percent)
-        display_themed_percent_radial_bar(gpu_fan_radial_data, fan_percent)
-        display_themed_line_graph(gpu_fan_line_graph_data, cls.last_values_gpu_fan_speed)
+            display_themed_percent_value(gpu_fan_text_data, fan_percent)
+            display_themed_progress_bar(gpu_fan_graph_data, fan_percent)
+            display_themed_percent_radial_bar(gpu_fan_radial_data, fan_percent)
+            display_themed_line_graph(gpu_fan_line_graph_data, cls.last_values_gpu_fan_speed)
 
-        # GPU Frequency (Ghz)
-        gpu_freq_text_data = theme_gpu_data['FREQUENCY']['TEXT']
-        gpu_freq_radial_data = theme_gpu_data['FREQUENCY']['RADIAL']
-        gpu_freq_graph_data = theme_gpu_data['FREQUENCY']['GRAPH']
-        gpu_freq_line_graph_data = theme_gpu_data['FREQUENCY']['LINE_GRAPH']
-        display_themed_value(
-            theme_data=gpu_freq_text_data,
-            value=f'{freq_ghz:.2f}',
-            unit=" GHz",
-            min_size=4
-        )
-        display_themed_progress_bar(gpu_freq_graph_data, freq_ghz)
-        display_themed_radial_bar(
-            theme_data=gpu_freq_radial_data,
-            value=f'{freq_ghz:.2f}',
-            unit=" GHz",
-            min_size=4
-        )
-        display_themed_line_graph(gpu_freq_line_graph_data, cls.last_values_gpu_frequency)
+            # GPU Frequency (Ghz)
+            gpu_freq_text_data = theme_gpu_data['FREQUENCY']['TEXT']
+            gpu_freq_radial_data = theme_gpu_data['FREQUENCY']['RADIAL']
+            gpu_freq_graph_data = theme_gpu_data['FREQUENCY']['GRAPH']
+            gpu_freq_line_graph_data = theme_gpu_data['FREQUENCY']['LINE_GRAPH']
+            display_themed_value(
+                theme_data=gpu_freq_text_data,
+                value=f'{freq_ghz:.2f}',
+                unit=" GHz",
+                min_size=4
+            )
+            display_themed_progress_bar(gpu_freq_graph_data, freq_ghz)
+            display_themed_radial_bar(
+                theme_data=gpu_freq_radial_data,
+                value=f'{freq_ghz:.2f}',
+                unit=" GHz",
+                min_size=4
+            )
+            display_themed_line_graph(gpu_freq_line_graph_data, cls.last_values_gpu_frequency)
+
+        # Multi-GPU Logic
+        for key in config.THEME_DATA['STATS']:
+            if key.startswith('GPU_'):
+                try:
+                    index = int(key.split('_')[1])
+                    cls.stats_for_index(index, config.THEME_DATA['STATS'][key])
+                except ValueError:
+                    continue
+
+    @classmethod
+    def stats_for_index(cls, index, theme_data):
+        if index not in cls.last_values_multi:
+             cls.last_values_multi[index] = {
+                 'percentage': [],
+                 'mem_percentage': [],
+                 'temperature': [],
+             }
+        
+        load, memory_percentage, memory_used_mb, total_memory_mb, temperature, name = sensors.Gpu.stats_by_index(index)
+        
+        # Display Name
+        if 'NAME' in theme_data:
+            display_themed_value(theme_data['NAME'], name)
+
+        # Display Temperature
+        if 'TEMPERATURE' in theme_data:
+             temp_val = temperature
+             if math.isnan(temp_val): temp_val = 0
+             
+             if 'TEXT' in theme_data['TEMPERATURE']:
+                 display_themed_temperature_value(theme_data['TEMPERATURE']['TEXT'], temp_val)
+
+        # Display Load
+        if 'PERCENTAGE' in theme_data:
+             load_val = load
+             if math.isnan(load_val): load_val = 0
+             
+             save_last_value(load_val, cls.last_values_multi[index]['percentage'], 
+                             theme_data['PERCENTAGE'].get('LINE_GRAPH', {}).get("HISTORY_SIZE", DEFAULT_HISTORY_SIZE))
+             
+             if 'TEXT' in theme_data['PERCENTAGE']:
+                 display_themed_percent_value(theme_data['PERCENTAGE']['TEXT'], load_val)
+             if 'GRAPH' in theme_data['PERCENTAGE']:
+                 display_themed_progress_bar(theme_data['PERCENTAGE']['GRAPH'], load_val)
+
+        # Display Memory Used
+        if 'MEMORY_USED' in theme_data:
+             mem_val = memory_used_mb
+             if math.isnan(mem_val): mem_val = 0
+             
+             if 'TEXT' in theme_data['MEMORY_USED']:
+                  display_themed_value(theme_data['MEMORY_USED']['TEXT'], int(mem_val), unit=" M")
+             
+             if 'GRAPH' in theme_data['MEMORY_USED']:
+                  mem_pct = memory_percentage
+                  if math.isnan(mem_pct): mem_pct = 0
+                  display_themed_progress_bar(theme_data['MEMORY_USED']['GRAPH'], mem_pct)
 
     @staticmethod
     def is_available():

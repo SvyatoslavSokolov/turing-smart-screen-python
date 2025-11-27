@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  turing-smart-screen:
+    build: .
+    container_name: turing-smart-screen
+    privileged: true
+    # runtime: nvidia
+    environment:
+      - DISPLAY=$DISPLAY
+      - QT_X11_NO_MITSHM=1
+      - XAUTHORITY=/tmp/.docker.xauth
+    volumes:
+      # Mount the application code
+      - .:/app:rw
+      # Mount USB devices for display communication
+      - /dev/bus/usb:/dev/bus/usb:rw
+      # Mount X11 socket for GUI applications (if needed)
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      # Mount Xauthority for authentication
+      - /tmp/.docker.xauth:/tmp/.docker.xauth:rw
+      # Mount config directory to persist settings
+      - ./config.yaml:/app/config.yaml:rw
+    # GPU access for NVIDIA
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    # Set the correct user ID to avoid permission issues
+    user: "${UID:-1000}:${GID:-1000}"
+    group_add:
+      - dialout
+    # Keep container running
+    restart: unless-stopped
+    # Run with NVIDIA runtime for GPU support
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+    # Ensure proper device access including for USB devices
+    devices:
+      - /dev/dri:/dev/dri
+      - /dev/ttyACM0:/dev/ttyACM0

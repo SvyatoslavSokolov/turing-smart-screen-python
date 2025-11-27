@@ -79,6 +79,15 @@ class Gpu(ABC):
     def is_available() -> bool:
         pass
 
+    @staticmethod
+    def get_gpu_count() -> int:
+        return 1
+
+    @staticmethod
+    def stats_by_index(index: int) -> Tuple[float, float, float, float, float, str]:
+        # load (%) / used mem (%) / used mem (Mb) / total mem (Mb) / temp (°C) / name
+        return 0.0, 0.0, 0.0, 0.0, 0.0, "GPU"
+
 
 class Memory(ABC):
     @staticmethod

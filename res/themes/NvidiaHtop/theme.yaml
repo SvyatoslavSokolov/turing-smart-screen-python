@@ -1,0 +1,369 @@
+---
+author: "Antigravity"
+display:
+  DISPLAY_ORIENTATION: landscape
+  DISPLAY_SIZE: '3.5"'
+
+static_images:
+  BACKGROUND:
+    PATH: background.png
+    X: 0
+    Y: 0
+    WIDTH: 480
+    HEIGHT: 320
+
+static_text:
+  # Columns Headers
+  HEADER_ITEM:
+    TEXT: "ITEM"
+    X: 10
+    Y: 5
+    FONT: roboto-mono/RobotoMono-Bold.ttf
+    FONT_SIZE: 14
+    FONT_COLOR: 150, 150, 150
+    BACKGROUND_IMAGE: background.png
+  HEADER_LOAD:
+    TEXT: "LOAD / MEMORY"
+    X: 80
+    Y: 5
+    FONT: roboto-mono/RobotoMono-Bold.ttf
+    FONT_SIZE: 14
+    FONT_COLOR: 150, 150, 150
+    BACKGROUND_IMAGE: background.png
+  HEADER_TEMP:
+    TEXT: "TEMP"
+    X: 410
+    Y: 5
+    FONT: roboto-mono/RobotoMono-Bold.ttf
+    FONT_SIZE: 14
+    FONT_COLOR: 150, 150, 150
+    BACKGROUND_IMAGE: background.png
+
+  # Labels
+  CPU_LABEL:
+    TEXT: "CPU"
+    X: 10
+    Y: 35
+    FONT: roboto-mono/RobotoMono-Bold.ttf
+    FONT_SIZE: 18
+    FONT_COLOR: 0, 255, 255
+    BACKGROUND_IMAGE: background.png
+  
+  RAM_LABEL:
+    TEXT: "RAM"
+    X: 10
+    Y: 65
+    FONT: roboto-mono/RobotoMono-Bold.ttf
+    FONT_SIZE: 18
+    FONT_COLOR: 0, 255, 255
+    BACKGROUND_IMAGE: background.png
+
+  DISK_LABEL:
+    TEXT: "DSK"
+    X: 10
+    Y: 95
+    FONT: roboto-mono/RobotoMono-Bold.ttf
+    FONT_SIZE: 18
+    FONT_COLOR: 0, 255, 255
+    BACKGROUND_IMAGE: background.png
+
+  # GPU Labels (Static part)
+  GPU0_LBL_LOAD:
+    TEXT: "Load"
+    X: 10
+    Y: 145
+    FONT: roboto-mono/RobotoMono-Regular.ttf
+    FONT_SIZE: 12
+    FONT_COLOR: 200, 200, 200
+    BACKGROUND_IMAGE: background.png
+  GPU0_LBL_MEM:
+    TEXT: "Mem"
+    X: 10
+    Y: 160
+    FONT: roboto-mono/RobotoMono-Regular.ttf
+    FONT_SIZE: 12
+    FONT_COLOR: 200, 200, 200
+    BACKGROUND_IMAGE: background.png
+
+  GPU1_LBL_LOAD:
+    TEXT: "Load"
+    X: 10
+    Y: 205
+    FONT: roboto-mono/RobotoMono-Regular.ttf
+    FONT_SIZE: 12
+    FONT_COLOR: 200, 200, 200
+    BACKGROUND_IMAGE: background.png
+  GPU1_LBL_MEM:
+    TEXT: "Mem"
+    X: 10
+    Y: 220
+    FONT: roboto-mono/RobotoMono-Regular.ttf
+    FONT_SIZE: 12
+    FONT_COLOR: 200, 200, 200
+    BACKGROUND_IMAGE: background.png
+
+  GPU2_LBL_LOAD:
+    TEXT: "Load"
+    X: 10
+    Y: 265
+    FONT: roboto-mono/RobotoMono-Regular.ttf
+    FONT_SIZE: 12
+    FONT_COLOR: 200, 200, 200
+    BACKGROUND_IMAGE: background.png
+  GPU2_LBL_MEM:
+    TEXT: "Mem"
+    X: 10
+    Y: 280
+    FONT: roboto-mono/RobotoMono-Regular.ttf
+    FONT_SIZE: 12
+    FONT_COLOR: 200, 200, 200
+    BACKGROUND_IMAGE: background.png
+
+STATS:
+  CPU:
+    PERCENTAGE:
+      INTERVAL: 1
+      TEXT:
+        SHOW: True
+        SHOW_UNIT: True
+        X: 340
+        Y: 35
+        FONT: roboto-mono/RobotoMono-Bold.ttf
+        FONT_SIZE: 18
+        FONT_COLOR: 255, 255, 255
+        BACKGROUND_IMAGE: background.png
+      GRAPH:
+        SHOW: True
+        X: 80
+        Y: 40
+        WIDTH: 250
+        HEIGHT: 12
+        BAR_COLOR: 0, 255, 0
+        BACKGROUND_COLOR: 30, 30, 30
+    TEMPERATURE:
+      TEXT:
+        SHOW: True
+        SHOW_UNIT: True
+        X: 410
+        Y: 35
+        FONT: roboto-mono/RobotoMono-Bold.ttf
+        FONT_SIZE: 18
+        FONT_COLOR: 255, 255, 0
+        BACKGROUND_IMAGE: background.png
+
+  MEMORY:
+    INTERVAL: 1
+    VIRTUAL:
+      USED:
+        SHOW: True
+        SHOW_UNIT: True
+        X: 340
+        Y: 65
+        FONT: roboto-mono/RobotoMono-Bold.ttf
+        FONT_SIZE: 18
+        FONT_COLOR: 255, 255, 255
+        BACKGROUND_IMAGE: background.png
+      GRAPH:
+        SHOW: True
+        X: 80
+        Y: 70
+        WIDTH: 250
+        HEIGHT: 12
+        BAR_COLOR: 0, 255, 0
+        BACKGROUND_COLOR: 30, 30, 30
+  
+  DISK:
+    INTERVAL: 5
+    USED:
+      TEXT:
+        SHOW: True
+        SHOW_UNIT: True
+        X: 340
+        Y: 95
+        FONT: roboto-mono/RobotoMono-Bold.ttf
+        FONT_SIZE: 18
+        FONT_COLOR: 255, 255, 255
+        BACKGROUND_IMAGE: background.png
+      GRAPH:
+        SHOW: True
+        X: 80
+        Y: 100
+        WIDTH: 250
+        HEIGHT: 12
+        BAR_COLOR: 0, 255, 0
+        BACKGROUND_COLOR: 30, 30, 30
+
+  # Dummy GPU section to trigger scheduler
+  GPU:
+    INTERVAL: 1
+
+  # GPU 0
+  GPU_0:
+    NAME:
+      SHOW: True
+      X: 10
+      Y: 125
+      FONT: roboto-mono/RobotoMono-Bold.ttf
+      FONT_SIZE: 14
+      FONT_COLOR: 0, 255, 0
+      BACKGROUND_IMAGE: background.png
+    TEMPERATURE:
+      TEXT:
+        SHOW: True
+        SHOW_UNIT: True
+        X: 410
+        Y: 145
+        FONT: roboto-mono/RobotoMono-Bold.ttf
+        FONT_SIZE: 18
+        FONT_COLOR: 255, 255, 0
+        BACKGROUND_IMAGE: background.png
+    PERCENTAGE:
+      TEXT:
+        SHOW: True
+        SHOW_UNIT: True
+        X: 340
+        Y: 145
+        FONT: roboto-mono/RobotoMono-Bold.ttf
+        FONT_SIZE: 18
+        FONT_COLOR: 255, 255, 255
+        BACKGROUND_IMAGE: background.png
+      GRAPH:
+        SHOW: True
+        X: 60
+        Y: 150
+        WIDTH: 270
+        HEIGHT: 10
+        BAR_COLOR: 0, 255, 0
+        BACKGROUND_COLOR: 30, 30, 30
+    MEMORY_USED:
+      TEXT:
+        SHOW: True
+        SHOW_UNIT: True
+        X: 340
+        Y: 160
+        FONT: roboto-mono/RobotoMono-Regular.ttf
+        FONT_SIZE: 14
+        FONT_COLOR: 200, 200, 200
+        BACKGROUND_IMAGE: background.png
+      GRAPH:
+        SHOW: True
+        X: 60
+        Y: 165
+        WIDTH: 270
+        HEIGHT: 8
+        BAR_COLOR: 0, 150, 255
+        BACKGROUND_COLOR: 30, 30, 30
+
+  # GPU 1
+  GPU_1:
+    NAME:
+      SHOW: True
+      X: 10
+      Y: 185
+      FONT: roboto-mono/RobotoMono-Bold.ttf
+      FONT_SIZE: 14
+      FONT_COLOR: 0, 255, 0
+      BACKGROUND_IMAGE: background.png
+    TEMPERATURE:
+      TEXT:
+        SHOW: True
+        SHOW_UNIT: True
+        X: 410
+        Y: 205
+        FONT: roboto-mono/RobotoMono-Bold.ttf
+        FONT_SIZE: 18
+        FONT_COLOR: 255, 255, 0
+        BACKGROUND_IMAGE: background.png
+    PERCENTAGE:
+      TEXT:
+        SHOW: True
+        SHOW_UNIT: True
+        X: 340
+        Y: 205
+        FONT: roboto-mono/RobotoMono-Bold.ttf
+        FONT_SIZE: 18
+        FONT_COLOR: 255, 255, 255
+        BACKGROUND_IMAGE: background.png
+      GRAPH:
+        SHOW: True
+        X: 60
+        Y: 210
+        WIDTH: 270
+        HEIGHT: 10
+        BAR_COLOR: 0, 255, 0
+        BACKGROUND_COLOR: 30, 30, 30
+    MEMORY_USED:
+      TEXT:
+        SHOW: True
+        SHOW_UNIT: True
+        X: 340
+        Y: 220
+        FONT: roboto-mono/RobotoMono-Regular.ttf
+        FONT_SIZE: 14
+        FONT_COLOR: 200, 200, 200
+        BACKGROUND_IMAGE: background.png
+      GRAPH:
+        SHOW: True
+        X: 60
+        Y: 225
+        WIDTH: 270
+        HEIGHT: 8
+        BAR_COLOR: 0, 150, 255
+        BACKGROUND_COLOR: 30, 30, 30
+
+  # GPU 2
+  GPU_2:
+    NAME:
+      SHOW: True
+      X: 10
+      Y: 245
+      FONT: roboto-mono/RobotoMono-Bold.ttf
+      FONT_SIZE: 14
+      FONT_COLOR: 0, 255, 0
+      BACKGROUND_IMAGE: background.png
+    TEMPERATURE:
+      TEXT:
+        SHOW: True
+        SHOW_UNIT: True
+        X: 410
+        Y: 265
+        FONT: roboto-mono/RobotoMono-Bold.ttf
+        FONT_SIZE: 18
+        FONT_COLOR: 255, 255, 0
+        BACKGROUND_IMAGE: background.png
+    PERCENTAGE:
+      TEXT:
+        SHOW: True
+        SHOW_UNIT: True
+        X: 340
+        Y: 265
+        FONT: roboto-mono/RobotoMono-Bold.ttf
+        FONT_SIZE: 18
+        FONT_COLOR: 255, 255, 255
+        BACKGROUND_IMAGE: background.png
+      GRAPH:
+        SHOW: True
+        X: 60
+        Y: 270
+        WIDTH: 270
+        HEIGHT: 10
+        BAR_COLOR: 0, 255, 0
+        BACKGROUND_COLOR: 30, 30, 30
+    MEMORY_USED:
+      TEXT:
+        SHOW: True
+        SHOW_UNIT: True
+        X: 340
+        Y: 280
+        FONT: roboto-mono/RobotoMono-Regular.ttf
+        FONT_SIZE: 14
+        FONT_COLOR: 200, 200, 200
+        BACKGROUND_IMAGE: background.png
+      GRAPH:
+        SHOW: True
+        X: 60
+        Y: 285
+        WIDTH: 270
+        HEIGHT: 8
+        BAR_COLOR: 0, 150, 255
+        BACKGROUND_COLOR: 30, 30, 30

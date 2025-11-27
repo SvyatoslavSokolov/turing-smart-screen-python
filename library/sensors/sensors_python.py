@@ -240,6 +240,24 @@ class Gpu(sensors.Gpu):
 
         return DETECTED_GPU != GpuType.UNSUPPORTED
 
+    @staticmethod
+    def get_gpu_count() -> int:
+        if DETECTED_GPU == GpuType.AMD:
+            return GpuAmd.get_gpu_count()
+        elif DETECTED_GPU == GpuType.NVIDIA:
+            return GpuNvidia.get_gpu_count()
+        else:
+            return 0
+
+    @staticmethod
+    def stats_by_index(index: int) -> Tuple[float, float, float, float, float, str]:
+        if DETECTED_GPU == GpuType.AMD:
+            return GpuAmd.stats_by_index(index)
+        elif DETECTED_GPU == GpuType.NVIDIA:
+            return GpuNvidia.stats_by_index(index)
+        else:
+            return math.nan, math.nan, math.nan, math.nan, math.nan, "Unknown"
+
 
 class GpuNvidia(sensors.Gpu):
     @staticmethod
@@ -309,6 +327,23 @@ class GpuNvidia(sensors.Gpu):
             return len(GPUtil.getGPUs()) > 0
         except:
             return False
+
+    @staticmethod
+    def get_gpu_count() -> int:
+        try:
+            return len(GPUtil.getGPUs())
+        except:
+            return 0
+
+    @staticmethod
+    def stats_by_index(index: int) -> Tuple[float, float, float, float, float, str]:
+        try:
+            gpu = GPUtil.getGPUs()[index]
+            load = gpu.load * 100
+            mem_percent = (gpu.memoryUsed / gpu.memoryTotal) * 100
+            return load, mem_percent, gpu.memoryUsed, gpu.memoryTotal, gpu.temperature, gpu.name
+        except:
+            return math.nan, math.nan, math.nan, math.nan, math.nan, "Unknown"
 
 
 class GpuAmd(sensors.Gpu):
