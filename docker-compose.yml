@@ -38,7 +38,6 @@ services:
     # Run with NVIDIA runtime for GPU support
     stdin_open: true
     tty: true
-    restart: unless-stopped
     # Ensure proper device access including for USB devices
     devices:
       - /dev/dri:/dev/dri
